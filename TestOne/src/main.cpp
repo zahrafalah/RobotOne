@@ -72,9 +72,7 @@ int SpeedController() {
 }
 
 // ControllerSwitch is for switch between joystin and button , just for driving
-int ControllerSwitch() {
-  while (true) {
-    /*
+void ControllerSwitch() {
     if ( Controller1.ButtonR2.pressing()) {
       if (controllerSwitch) {
         controllerSwitch = false;
@@ -82,13 +80,6 @@ int ControllerSwitch() {
         controllerSwitch = true;
       }
     }
-    */
-    Brain.Screen.clearLine(4, color::black);
-    Brain.Screen.setCursor(4, 0);
-    Brain.Screen.print(controllerSwitch);
-    vex::task::sleep(1000);
-  }
-  return 0;
 }
 // grabberController is for control the motion of grabber
 void grabberController() {
@@ -187,16 +178,16 @@ int main() {
 
   Brain.Screen.clearLine(1, color::black);
   Brain.Screen.setCursor(1, 0);
-  Brain.Screen.print("Prigram Starteed");
+  Brain.Screen.print("Prigram Started");
   ElevM.setPosition(0, degrees);
 
   // running tasks
   vex::task speedController(SpeedController);
-  vex::task controllerSwitch(ControllerSwitch);
   vex::task driveController(DriveController);
 
   while (true) {
     grabberController();
     elevatorController();
+    ControllerSwitch();
   }
 }
