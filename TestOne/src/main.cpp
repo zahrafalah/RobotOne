@@ -10,14 +10,14 @@
 // ---- START VEXCODE CONFIGURED DEVICES ----
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
-// Controller1          controller                    
-// grabberML            motor         1               
-// grabberMR            motor         2               
-// ElevM                motor         3               
-// MFL                  motor         4               
-// MBL                  motor         5               
-// MFR                  motor         6               
-// MBR                  motor         7               
+// Controller1          controller
+// grabberML            motor         1
+// grabberMR            motor         2
+// ElevM                motor         3
+// MFL                  motor         4
+// MBL                  motor         5
+// MFR                  motor         6
+// MBR                  motor         7
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
@@ -63,23 +63,25 @@ int SpeedController() {
     grabberML.setVelocity(grabSpeed, rpm);
     grabberMR.setVelocity(grabSpeed, rpm);
     ElevM.setVelocity(elevSpeed, rpm);
-    MFL.setVelocity(motorSpeed, rpm);
-    MBL.setVelocity(motorSpeed, rpm);
-    MFR.setVelocity(motorSpeed, rpm);
-    MBR.setVelocity(motorSpeed, rpm);
+    if (controllerSwitch) {
+      MFL.setVelocity(motorSpeed, rpm);
+      MBL.setVelocity(motorSpeed, rpm);
+      MFR.setVelocity(motorSpeed, rpm);
+      MBR.setVelocity(motorSpeed, rpm);
+    }
   }
   return 0;
 }
 
 // ControllerSwitch is for switch between joystin and button , just for driving
 void ControllerSwitch() {
-    if ( Controller1.ButtonR2.pressing()) {
-      if (controllerSwitch) {
-        controllerSwitch = false;
-      } else {
-        controllerSwitch = true;
-      }
+  if (Controller1.ButtonR2.pressing()) {
+    if (controllerSwitch) {
+      controllerSwitch = false;
+    } else {
+      controllerSwitch = true;
     }
+  }
 }
 // grabberController is for control the motion of grabber
 void grabberController() {
@@ -167,6 +169,15 @@ int DriveController() {
       } else {
         driveMotor('S', 'S');
       }
+    } else {
+      MFL.setVelocity(Controller1.Axis3.value() * 3, rpm);
+      MBL.setVelocity(Controller1.Axis3.value() * 3, rpm);
+      MFR.setVelocity(Controller1.Axis2.value() * 3, rpm);
+      MBR.setVelocity(Controller1.Axis2.value() * 3, rpm);
+      MFL.spin(forward);
+      MBL.spin(forward);
+      MFR.spin(forward);
+      MBR.spin(forward);
     }
   }
   return 0;
