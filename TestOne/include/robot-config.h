@@ -7,6 +7,10 @@ extern controller Controller1;
 extern motor grabberML;
 extern motor grabberMR;
 extern motor ElevM;
+extern motor MFL;
+extern motor MBL;
+extern motor MFR;
+extern motor MBR;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Text.

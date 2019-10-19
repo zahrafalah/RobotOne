@@ -10,19 +10,24 @@
 // ---- START VEXCODE CONFIGURED DEVICES ----
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
-// Controller1          controller
-// grabberML            motor         1
-// grabberMR            motor         2
-// ElevM                motor         3
+// Controller1          controller                    
+// grabberML            motor         1               
+// grabberMR            motor         2               
+// ElevM                motor         3               
+// MFL                  motor         4               
+// MBL                  motor         5               
+// MFR                  motor         6               
+// MBR                  motor         7               
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
 
 using namespace vex;
 
-int motorSpeed = 100;
+int grabSpeed = 100;
 int elevSpeed = 100;
-bool controllerSwitch = false;
+int motorSpeed = 100;
+bool controllerSwitch = true;
 
 // SpeedController is for controlling the speed of motor
 int SpeedController() {
@@ -31,30 +36,37 @@ int SpeedController() {
   Brain.Screen.print("Starting the Task");
   while (true) {
     if (Controller1.ButtonX.pressing()) {
-      motorSpeed += 10;
+      grabSpeed += 10;
       elevSpeed += 10;
+      motorSpeed += 10;
       Brain.Screen.clearLine(2, color::black);
       Brain.Screen.setCursor(2, 0);
-      Brain.Screen.print("Speed Set to %d", motorSpeed);
+      Brain.Screen.print("Speed Set to %d", grabSpeed);
     }
     if (Controller1.ButtonB.pressing()) {
-      motorSpeed -= 10;
+      grabSpeed -= 10;
       elevSpeed -= 10;
+      motorSpeed -= 10;
       Brain.Screen.clearLine(2, color::black);
       Brain.Screen.setCursor(2, 0);
-      Brain.Screen.print("Speed Set to %d", motorSpeed);
+      Brain.Screen.print("Speed Set to %d", grabSpeed);
     }
     if (Controller1.ButtonY.pressing() || Controller1.ButtonA.pressing()) {
-      motorSpeed = 100;
+      grabSpeed = 100;
       elevSpeed = 100;
+      motorSpeed = 100;
       Brain.Screen.clearLine(2, color::black);
       Brain.Screen.setCursor(2, 0);
-      Brain.Screen.print("Speed Set to %d", motorSpeed);
+      Brain.Screen.print("Speed Set to %d", grabSpeed);
     }
     vex::task::sleep(50);
-    grabberML.setVelocity(motorSpeed, rpm);
-    grabberMR.setVelocity(motorSpeed, rpm);
+    grabberML.setVelocity(grabSpeed, rpm);
+    grabberMR.setVelocity(grabSpeed, rpm);
     ElevM.setVelocity(elevSpeed, rpm);
+    MFL.setVelocity(motorSpeed, rpm);
+    MBL.setVelocity(motorSpeed, rpm);
+    MFR.setVelocity(motorSpeed, rpm);
+    MBR.setVelocity(motorSpeed, rpm);
   }
   return 0;
 }
@@ -62,23 +74,28 @@ int SpeedController() {
 // ControllerSwitch is for switch between joystin and button , just for driving
 int ControllerSwitch() {
   while (true) {
-    if (Controller1.ButtonL1.pressing() && Controller1.ButtonL2.pressing()) {
+    /*
+    if ( Controller1.ButtonR2.pressing()) {
       if (controllerSwitch) {
         controllerSwitch = false;
       } else {
         controllerSwitch = true;
       }
     }
-    vex::task::sleep(100);
+    */
+    Brain.Screen.clearLine(4, color::black);
+    Brain.Screen.setCursor(4, 0);
+    Brain.Screen.print(controllerSwitch);
+    vex::task::sleep(1000);
   }
   return 0;
 }
 // grabberController is for control the motion of grabber
 void grabberController() {
-  if (Controller1.ButtonUp.pressing()) {
+  if (Controller1.ButtonL1.pressing()) {
     grabberML.spin(forward);
     grabberMR.spin(forward);
-  } else if (Controller1.ButtonDown.pressing()) {
+  } else if (Controller1.ButtonL2.pressing()) {
     grabberML.spin(reverse);
     grabberMR.spin(reverse);
   } else {
@@ -89,9 +106,9 @@ void grabberController() {
 
 // elevatorController is for control the motion of elevator
 void elevatorController() {
-  if (Controller1.ButtonRight.pressing() && Controller1.ButtonLeft.pressing()) {
+  if (Controller1.ButtonR1.pressing() && Controller1.ButtonR2.pressing()) {
     if (ElevM.position(degrees) < 2100) {
-      motorSpeed = 10;
+      grabSpeed = 10;
       elevSpeed = 100;
       grabberML.spin(forward);
       grabberMR.spin(forward);
@@ -99,26 +116,69 @@ void elevatorController() {
       vex::task::sleep(10);
       grabberML.stop();
       grabberMR.stop();
-      motorSpeed = -10;
+      grabSpeed = -10;
+      elevSpeed = 30;
       vex::task::sleep(100);
       grabberML.spin(forward);
       grabberMR.spin(forward);
-      elevSpeed = 70;
       ElevM.spinToPosition(2250, degrees);
+      elevSpeed = 140;
       vex::task::sleep(500);
       grabberML.stop();
       grabberMR.stop();
       ElevM.spinToPosition(0, degrees);
     }
-  } else if (Controller1.ButtonLeft.pressing()) {
+  } else if (Controller1.ButtonR1.pressing()) {
     if (ElevM.position(degrees) > 50) {
       ElevM.spinToPosition(0, degrees);
     }
-  } else if (Controller1.ButtonRight.pressing()) {
+  } else if (Controller1.ButtonR2.pressing()) {
     ElevM.spin(forward);
   } else {
     ElevM.stop();
   }
+}
+
+void driveMotor(char l, char r) {
+  if (l == 'F') {
+    MFL.spin(forward);
+    MBL.spin(forward);
+  } else if (l == 'B') {
+    MFL.spin(reverse);
+    MBL.spin(reverse);
+  }
+  if (r == 'F') {
+    MFR.spin(forward);
+    MBR.spin(forward);
+  } else if (r == 'B') {
+    MFR.spin(reverse);
+    MBR.spin(reverse);
+  }
+  if (l == 'S' && r == 'S') {
+    MFL.stop();
+    MBL.stop();
+    MFR.stop();
+    MBR.stop();
+  }
+}
+
+int DriveController() {
+  while (true) {
+    if (controllerSwitch) {
+      if (Controller1.ButtonUp.pressing()) {
+        driveMotor('F', 'F');
+      } else if (Controller1.ButtonDown.pressing()) {
+        driveMotor('B', 'B');
+      } else if (Controller1.ButtonLeft.pressing()) {
+        driveMotor('B', 'F');
+      } else if (Controller1.ButtonRight.pressing()) {
+        driveMotor('F', 'B');
+      } else {
+        driveMotor('S', 'S');
+      }
+    }
+  }
+  return 0;
 }
 
 int main() {
@@ -130,18 +190,13 @@ int main() {
   Brain.Screen.print("Prigram Starteed");
   ElevM.setPosition(0, degrees);
 
-  //running tasks
+  // running tasks
   vex::task speedController(SpeedController);
   vex::task controllerSwitch(ControllerSwitch);
+  vex::task driveController(DriveController);
 
   while (true) {
     grabberController();
     elevatorController();
-
-    if (Controller1.ButtonL1.pressing()) {
-      Brain.Screen.clearLine(1, color::black);
-      Brain.Screen.setCursor(1, 0);
-      Brain.Screen.print("Motor ElevM location : %f ", ElevM.position(degrees));
-    }
   }
 }

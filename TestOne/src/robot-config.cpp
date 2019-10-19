@@ -12,6 +12,10 @@ controller Controller1 = controller(primary);
 motor grabberML = motor(PORT1, ratio18_1, true);
 motor grabberMR = motor(PORT2, ratio18_1, false);
 motor ElevM = motor(PORT3, ratio18_1, false);
+motor MFL = motor(PORT4, ratio18_1, true);
+motor MBL = motor(PORT5, ratio18_1, true);
+motor MFR = motor(PORT6, ratio18_1, false);
+motor MBR = motor(PORT7, ratio18_1, false);
 
 // VEXcode generated functions
 
