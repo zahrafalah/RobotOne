@@ -10,14 +10,14 @@
 // ---- START VEXCODE CONFIGURED DEVICES ----
 // Robot Configuration:
 // [Name]               [Type]        [Port(s)]
-// Controller1          controller
-// grabberML            motor         1
-// grabberMR            motor         2
-// ElevM                motor         3
-// MFL                  motor         4
-// MBL                  motor         5
-// MFR                  motor         6
-// MBR                  motor         7
+// Controller1          controller                    
+// grabberML            motor         1               
+// grabberMR            motor         2               
+// ElevM                motor         3               
+// MFL                  motor         4               
+// MBL                  motor         5               
+// MFR                  motor         6               
+// MBR                  motor         7               
 // ---- END VEXCODE CONFIGURED DEVICES ----
 
 #include "vex.h"
@@ -97,30 +97,35 @@ void grabberController() {
   }
 }
 
+void elevatorUnload() {
+  //2100
+  if (ElevM.position(degrees) < 1300) {
+    grabSpeed = 10;
+    elevSpeed = 100;
+    grabberML.spin(forward);
+    grabberMR.spin(forward);
+    ElevM.spinToPosition(1100, degrees);
+    vex::task::sleep(10);
+    grabberML.stop();
+    grabberMR.stop();
+    grabSpeed = -10;
+    elevSpeed = 30;
+    vex::task::sleep(100);
+    grabberML.spin(forward);
+    grabberMR.spin(forward);
+    ElevM.spinToPosition(1450, degrees);
+    elevSpeed = 140;
+    vex::task::sleep(500);
+    grabberML.stop();
+    grabberMR.stop();
+    ElevM.spinToPosition(0, degrees);
+  }
+}
+
 // elevatorController is for control the motion of elevator
 void elevatorController() {
   if (Controller1.ButtonR1.pressing() && Controller1.ButtonR2.pressing()) {
-    if (ElevM.position(degrees) < 2100) {
-      grabSpeed = 10;
-      elevSpeed = 100;
-      grabberML.spin(forward);
-      grabberMR.spin(forward);
-      ElevM.spinToPosition(1100, degrees);
-      vex::task::sleep(10);
-      grabberML.stop();
-      grabberMR.stop();
-      grabSpeed = -10;
-      elevSpeed = 30;
-      vex::task::sleep(100);
-      grabberML.spin(forward);
-      grabberMR.spin(forward);
-      ElevM.spinToPosition(2250, degrees);
-      elevSpeed = 140;
-      vex::task::sleep(500);
-      grabberML.stop();
-      grabberMR.stop();
-      ElevM.spinToPosition(0, degrees);
-    }
+    elevatorUnload();
   } else if (Controller1.ButtonR1.pressing()) {
     if (ElevM.position(degrees) > 50) {
       ElevM.spinToPosition(0, degrees);
@@ -183,6 +188,77 @@ int DriveController() {
   return 0;
 }
 
+void autoBlueOneTime() {
+  controllerSwitch = true;
+  grabSpeed = 100;
+  grabberML.spin(forward);
+  grabberMR.spin(forward);
+  vex::task::sleep(500);
+  // F 3
+  driveMotor('F', 'F');
+  vex::task::sleep(3000);
+  driveMotor('S', 'S');
+  vex::task::sleep(500);
+  // TL 2
+  driveMotor('B', 'F');
+  vex::task::sleep(2000);
+  driveMotor('S', 'S');
+  vex::task::sleep(500);
+  // F 3
+  driveMotor('F', 'F');
+  vex::task::sleep(3000);
+  driveMotor('S', 'S');
+  vex::task::sleep(500);
+  // TR 3
+  grabberML.stop();
+  grabberMR.stop();
+  driveMotor('F', 'B');
+  vex::task::sleep(3000);
+  driveMotor('S', 'S');
+  vex::task::sleep(500);
+  // F 5
+  driveMotor('F', 'F');
+  vex::task::sleep(5000);
+  driveMotor('S', 'S');
+  vex::task::sleep(500);
+  // TL 3
+  driveMotor('B', 'F');
+  vex::task::sleep(3000);
+  driveMotor('S', 'S');
+  vex::task::sleep(500);
+  // F 3
+  grabberML.spin(forward);
+  grabberMR.spin(forward);
+  driveMotor('F', 'F');
+  vex::task::sleep(3000);
+  driveMotor('S', 'S');
+  vex::task::sleep(500);
+  // B 10
+  grabberML.stop();
+  grabberMR.stop();
+  driveMotor('B', 'B');
+  vex::task::sleep(10000);
+  driveMotor('S', 'S');
+  vex::task::sleep(500);
+  // F 1
+  driveMotor('F', 'F');
+  vex::task::sleep(1000);
+  driveMotor('S', 'S');
+  vex::task::sleep(500);
+  // TR 2
+  driveMotor('F', 'B');
+  vex::task::sleep(2000);
+  driveMotor('S', 'S');
+  vex::task::sleep(500);
+  // F 2
+  driveMotor('F', 'F');
+  vex::task::sleep(2000);
+  driveMotor('S', 'S');
+  vex::task::sleep(500);
+  // U 5
+  elevatorUnload();
+}
+
 int main() {
   // Initializing Robot Configuration. DO NOT REMOVE!
   vexcodeInit();
@@ -193,12 +269,23 @@ int main() {
   ElevM.setPosition(0, degrees);
 
   // running tasks
-  vex::task speedController(SpeedController);
-  vex::task driveController(DriveController);
+   vex::task speedController(SpeedController);
+   vex::task driveController(DriveController);
 
   while (true) {
+
     grabberController();
     elevatorController();
     ControllerSwitch();
+
+   /* 
+    if (Controller1.ButtonR1.pressing()){
+
+  Brain.Screen.clearLine(1, color::black);
+  Brain.Screen.setCursor(1, 0);
+  Brain.Screen.print("%f",ElevM.position(degrees));
+
+    }
+    */
   }
 }
